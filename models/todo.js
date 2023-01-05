@@ -10,68 +10,72 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate() {
+    static associate(models) {
+      Todo.belongsTo(models.User,{
+        foreignKey: 'userId'
+      })
       // define association here
     }
 
-    static addTodo({title, dueDate}) {
-      return this.create({title: title, dueDate: dueDate, completed: false});
+    static addTodo({title, dueDate, userId}) {
+      return this.create({title: title, dueDate: dueDate, completed: false,userId});
     }
 
     static getTodos(){
       return this.findAll();
     }
 
-    static async overdue() {
+    static async overdue(userId) {
       return await Todo.findAll({
         where: {
           dueDate: { [Op.lt]: new Date().toLocaleDateString("en-CA") },
+          userId,
           completed: false,
         },
       });
     }
 
-    static async dueToday() {
+    static async dueToday(userId) {
       // FILL IN HERE TO RETURN ITEMS DUE tODAY
       return await Todo.findAll({
         where: {
           dueDate: { [Op.eq]: new Date().toLocaleDateString("en-CA") },
+          userId,
           completed: false,
         },
       });
     }
 
-    static async dueLater() {
+    static async dueLater(userId) {
       // FILL IN HERE TO RETURN ITEMS DUE LATER
       return await Todo.findAll({
         where: {
           dueDate: { [Op.gt]: new Date().toLocaleDateString("en-CA") },
+          userId,
           completed: false,
         },
       });
     }
 
-    static async remove(id) {
+    static async remove(id, userId) {
       return this.destroy({
         where: {
           id,
+          userId,
         }
       })
     }
 
-    static async completedItems(){
+    static async completedItems(userId){
       return this.findAll({
         where: {
           completed: true,
+          userId,
         }
       })
     }
     setCompletionStatus(receiver) {
       return this.update({ completed: receiver });
-    }
-
-    markAsCompleted() {
-      return this.update({completed: true});
     }
     
   }
